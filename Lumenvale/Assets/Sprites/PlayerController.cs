@@ -5,6 +5,8 @@ public class PlayerController : MonoBehaviour
     [Header("References: ")]
     [SerializeField] Rigidbody rb;
     [SerializeField] Collider col;
+    [SerializeField] SpriteRenderer spriteRenderer;
+    [SerializeField] Animator animator;
     InputSystem_Actions inputSystem;
 
 
@@ -25,6 +27,16 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         moveInput = inputSystem.Player.Move.ReadValue<Vector2>().normalized;
+        Vector3 scale = transform.localScale;
+
+        if (moveInput.x < 0)
+        {
+            spriteRenderer.flipX = true;
+        }
+        else if (moveInput.x > 0)
+        {
+            spriteRenderer.flipX = false;
+        }
     }
 
     private void FixedUpdate()

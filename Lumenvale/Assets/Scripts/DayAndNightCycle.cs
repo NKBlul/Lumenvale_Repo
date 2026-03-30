@@ -43,5 +43,6 @@ public class DayAndNightCycle : MonoBehaviour
 
         // Rotate around X axis (like sunrise to sunset)
         sunLight.transform.rotation = Quaternion.Euler(sunRotation - 90f, 170f, 0f);
+        sunLight.intensity = Mathf.Clamp(sunLight.intensity, 0, 1);
     }
 }

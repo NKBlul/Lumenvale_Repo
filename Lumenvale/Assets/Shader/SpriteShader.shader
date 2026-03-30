@@ -1,10 +1,14 @@
-Shader "Custom/HD2D_SpriteLitShadow"
+Shader "Custom/HD2D_SpriteLitShadow_Balanced"
 {
     Properties
     {
         _BaseMap("Base Map", 2D) = "white" {}
         _BaseColor("Base Color", Color) = (1,1,1,1)
         _Cutoff("Alpha Cutoff", Range(0,1)) = 0.5
+
+        _MinLight("Minimum Light", Range(0,1)) = 0.15
+        _AmbientStrength("Ambient Strength", Range(0,2)) = 1.0
+        _RimStrength("Rim Light Strength", Range(0,1)) = 0.2
     }
 
     SubShader
@@ -19,7 +23,7 @@ Shader "Custom/HD2D_SpriteLitShadow"
             Name "ForwardLit"
             Tags { "LightMode"="UniversalForward" }
 
-            Cull Off   // Double-sided. Change to Cull Back for single-sided
+            Cull Off
 
             HLSLPROGRAM
             #pragma vertex vert
@@ -51,6 +55,10 @@ Shader "Custom/HD2D_SpriteLitShadow"
                 float4 _BaseMap_ST;
                 half4 _BaseColor;
                 half _Cutoff;
+
+                half _MinLight;
+                half _AmbientStrength;
+                half _RimStrength;
             CBUFFER_END
 
             Varyings vert(Attributes IN)
@@ -72,16 +80,32 @@ Shader "Custom/HD2D_SpriteLitShadow"
                 // Alpha cutoff
                 clip(tex.a - _Cutoff);
 
-                // Flat HD2D lighting
-                float3 normal = float3(0,1,0);
+                // Camera-facing normal (good for sprites)
+                float3 normal = normalize(_WorldSpaceCameraPos - IN.positionWS);
 
+                // Main light
                 Light mainLight = GetMainLight(IN.shadowCoord);
                 float NdotL = saturate(dot(normal, mainLight.direction));
-
-                // Receive shadows
                 float shadowAtten = MainLightRealtimeShadow(IN.shadowCoord);
 
-                float3 lighting = tex.rgb * mainLight.color * NdotL * shadowAtten;
+                float3 directLight = mainLight.color * NdotL * shadowAtten;
+
+                // Ambient fades when sun is strong
+                float3 ambient = SampleSH(normal) * _AmbientStrength * (1.0 - NdotL);
+
+                // Minimum light only at night
+                float minFactor = 1.0 - NdotL;
+                float3 minLight = _MinLight * minFactor;
+
+                // Rim light (reduced at noon)
+                float rim = 1.0 - saturate(dot(normal, mainLight.direction));
+                float3 rimLight = rim * _RimStrength * (1.0 - NdotL) * mainLight.color;
+
+                // Combine lighting
+                float3 lighting = tex.rgb * (directLight + ambient + minLight) + rimLight;
+
+                // Safety clamp (prevents overexposure)
+                lighting = saturate(lighting);
 
                 return half4(lighting, tex.a);
             }
@@ -96,7 +120,7 @@ Shader "Custom/HD2D_SpriteLitShadow"
             Name "ShadowCaster"
             Tags { "LightMode"="ShadowCaster" }
 
-            Cull Off   // Double-sided shadow caster. Change to Cull Back if desired
+            Cull Off
 
             HLSLPROGRAM
             #pragma vertex vert
@@ -129,7 +153,7 @@ Shader "Custom/HD2D_SpriteLitShadow"
 
                 float3 positionWS = TransformObjectToWorld(IN.positionOS.xyz);
                 OUT.positionHCS = TransformWorldToHClip(positionWS);
-                OUT.uv = IN.uv; // No _BaseMap_ST needed here
+                OUT.uv = IN.uv;
 
                 return OUT;
             }
@@ -138,7 +162,6 @@ Shader "Custom/HD2D_SpriteLitShadow"
             {
                 half4 tex = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv);
 
-                // Alpha cutoff affects shadow shape
                 clip(tex.a - _Cutoff);
 
                 return 1;

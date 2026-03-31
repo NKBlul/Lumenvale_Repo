@@ -24,6 +24,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] LayerMask interactableLayer;
     private IInteractable currentTarget;
 
+    [Header("Attack: ")]
+    [SerializeField] GameObject hitbox;
+
     private void Awake()
     {
         inputSystem = new InputSystem_Actions();
@@ -38,7 +41,7 @@ public class PlayerController : MonoBehaviour
     {
         moveInput = inputSystem.Player.Move.ReadValue<Vector2>().normalized;
         Vector3 scale = transform.localScale;
-
+        Vector3 attackHitboxPos = hitbox.transform.localPosition;
         if (moveInput != Vector2.zero)
         {
             lastInputX = moveInput.x;
@@ -48,10 +51,15 @@ public class PlayerController : MonoBehaviour
         if (moveInput.x < 0)
         {
             spriteRenderer.flipX = true;
+
+            attackHitboxPos.x = Mathf.Abs(attackHitboxPos.x) * -1;
+            hitbox.transform.localPosition = attackHitboxPos;
         }
         else if (moveInput.x > 0)
         {
             spriteRenderer.flipX = false;
+            attackHitboxPos.x = Mathf.Abs(attackHitboxPos.x) * 1;
+            hitbox.transform.localPosition = attackHitboxPos;
         }
 
         if(inputSystem.Player.Interact.WasPressedThisFrame())
@@ -62,6 +70,7 @@ public class PlayerController : MonoBehaviour
         if(inputSystem.Player.Attack.WasPressedThisFrame())
         {
             animator.SetTrigger("attack");
+            hitbox.GetComponent<Collider>().enabled = true;
         }
 
         SetAnimatorValue();

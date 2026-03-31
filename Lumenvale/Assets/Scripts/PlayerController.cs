@@ -59,6 +59,11 @@ public class PlayerController : MonoBehaviour
             currentTarget?.OnInteract();
         }
 
+        if(inputSystem.Player.Attack.WasPressedThisFrame())
+        {
+            animator.SetTrigger("attack");
+        }
+
         SetAnimatorValue();
     }
 

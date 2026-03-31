@@ -395,6 +395,7 @@ GameObject:
   - component: {fileID: 776528964}
   - component: {fileID: 776528963}
   - component: {fileID: 776528962}
+  - component: {fileID: 776528965}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -485,6 +486,28 @@ MonoBehaviour:
   animator: {fileID: 1813293207}
   moveInput: {x: 0, y: 0}
   movementSpeed: 5
+  interactArea: {fileID: 776528965}
+--- !u!135 &776528965
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 776528960}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 1
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -546,7 +569,7 @@ GameObject:
   - component: {fileID: 1218439064}
   - component: {fileID: 1218439063}
   - component: {fileID: 1218439062}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -675,7 +698,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a91ba79c6da6065438c025f8a3e1b2f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DayAndNightCycle
-  dayLengthInMinutes: 0.1
+  dayLengthInMinutes: 1
   startTimeOfDay: 12
   sunLight: {fileID: 410087040}
   timeOfDay: 0
@@ -925,9 +948,9 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 1576032711}
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 2057080966}
   - {fileID: 776528961}
   - {fileID: 1218439065}
-  - {fileID: 1576032711}

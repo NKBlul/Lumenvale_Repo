@@ -40,8 +40,8 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         moveInput = inputSystem.Player.Move.ReadValue<Vector2>().normalized;
-        Vector3 scale = transform.localScale;
-        Vector3 attackHitboxPos = hitbox.transform.localPosition;
+        AttackHitbox attackHitbox = hitbox.GetComponent<AttackHitbox>();
+        Vector3 center = attackHitbox.hitboxCol.center;
         if (moveInput != Vector2.zero)
         {
             lastInputX = moveInput.x;
@@ -52,14 +52,15 @@ public class PlayerController : MonoBehaviour
         {
             spriteRenderer.flipX = true;
 
-            attackHitboxPos.x = Mathf.Abs(attackHitboxPos.x) * -1;
-            hitbox.transform.localPosition = attackHitboxPos;
+            center.x = Mathf.Abs(attackHitbox.hitboxCol.center.x) * -1;
+            attackHitbox.hitboxCol.center = center;
         }
         else if (moveInput.x > 0)
         {
             spriteRenderer.flipX = false;
-            attackHitboxPos.x = Mathf.Abs(attackHitboxPos.x) * 1;
-            hitbox.transform.localPosition = attackHitboxPos;
+
+            center.x = Mathf.Abs(attackHitbox.hitboxCol.center.x) * 1; ;
+            attackHitbox.hitboxCol.center = center;
         }
 
         if(inputSystem.Player.Interact.WasPressedThisFrame())
@@ -70,7 +71,6 @@ public class PlayerController : MonoBehaviour
         if(inputSystem.Player.Attack.WasPressedThisFrame())
         {
             animator.SetTrigger("attack");
-            hitbox.GetComponent<Collider>().enabled = true;
         }
 
         SetAnimatorValue();
